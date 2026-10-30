@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ribbon Roll Math Explorer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .font-heading {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .offcut-stripe {
+            background: repeating-linear-gradient(
+                45deg,
+                #fecdd3,
+                #fecdd3 8px,
+                #ffe4e6 8px,
+                #ffe4e6 16px
+            );
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-pop {
+            animation: popIn 0.25s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="text-slate-900 min-h-screen flex flex-col justify-between bg-slate-50">
+
+    <!-- Top Header -->
+    <header class="bg-gradient-to-r from-pink-600 via-rose-600 to-indigo-700 text-white shadow-md py-4 px-4 sm:px-8">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md">
+                    <i data-lucide="scissors" class="w-6 h-6 text-yellow-300"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold font-heading leading-none">Ribbon Cutting Math Explorer</h1>
+                    <p class="text-xs text-pink-100 mt-1 font-medium">Understanding Division, Remainders & Real-World Waste</p>
+                </div>
+            </div>
+            <div class="hidden sm:block text-right">
+                <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">Created: Mdm Zhang</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 py-6 w-full space-y-6 flex-1">
+
+        <!-- 1. PROBLEM CONTEXT CARD -->
+        <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-300">
+            <div class="flex items-start gap-3">
+                <div class="bg-pink-100 text-pink-800 p-2.5 rounded-xl mt-0.5 shrink-0">
+                    <i data-lucide="bookmark" class="w-5 h-5"></i>
+                </div>
+                <div class="space-y-1">
+                    <h2 class="text-xs uppercase font-extrabold text-pink-700 tracking-wider">The Problem Statement</h2>
+                    <p class="text-base sm:text-lg text-slate-900 font-bold leading-snug">
+                        Jess needs <span class="text-pink-700 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-200">200 pieces</span> of ribbons, each of length <span class="text-pink-700 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-200">110 cm</span>, to decorate a room. Ribbon is sold in rolls of <span class="text-indigo-800 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">25 m</span> (2500 cm) each.
+                    </p>
+                    <p class="text-sm text-slate-800 font-bold pt-1">
+                        What is the least number of rolls of ribbon that Jess needs to buy?
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. STEP 1: SINGLE ROLL VISUALIZER (SINGLE HORIZONTAL BAR) -->
+        <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-300 space-y-5">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-slate-200 pb-3">
+                <div>
+                    <span class="bg-indigo-100 text-indigo-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider border border-indigo-200">Step 1</span>
+                    <h3 class="text-lg font-bold font-heading text-slate-900 mt-1">Single Roll Cutter Visualizer (25 m = 2500 cm)</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="cutOnePiece()" id="btn-cut-one" class="bg-pink-600 hover:bg-pink-700 active:bg-pink-800 text-white font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                        <i data-lucide="scissors" class="w-4 h-4"></i>
+                        <span>Cut 1 Piece (110 cm)</span>
+                    </button>
+                    <button onclick="resetRoll()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold text-xs sm:text-sm px-3 py-2.5 rounded-xl transition flex items-center gap-1" title="Reset Roll">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>Reset</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ribbon Visual Single-Row Container -->
+            <div class="space-y-2">
+                <div class="flex justify-between text-xs font-bold text-slate-800 px-1">
+                    <span>0 cm</span>
+                    <span id="remaining-length-label" class="text-indigo-900 font-extrabold">Uncut Roll: 2500 cm</span>
+                    <span>2500 cm</span>
+                </div>
+
+                <!-- Single Horizontal Ribbon Bar -->
+                <div class="w-full bg-slate-200 rounded-xl border-2 border-slate-300 p-1 sm:p-1.5 shadow-inner">
+                    <div id="ribbon-strip-container" class="flex w-full h-8 sm:h-9 rounded-lg overflow-hidden bg-indigo-100 border border-indigo-200">
+                        <!-- Dynamic Ribbon blocks injected here in a single line -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Stats Row -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
+                <div class="bg-emerald-50 border-2 border-emerald-300 p-2.5 sm:p-3 rounded-xl">
+                    <div class="text-[10px] sm:text-[11px] font-black uppercase text-emerald-900">110 cm Pieces Cut</div>
+                    <div id="stat-pieces" class="text-xl sm:text-2xl font-black font-heading text-emerald-950 mt-0.5">0 / 22</div>
+                </div>
+                <div class="bg-indigo-50 border-2 border-indigo-300 p-2.5 sm:p-3 rounded-xl">
+                    <div class="text-[10px] sm:text-[11px] font-black uppercase text-indigo-900">Total Length Used</div>
+                    <div id="stat-used" class="text-xl sm:text-2xl font-black font-heading text-indigo-950 mt-0.5">0 cm</div>
+                </div>
+                <div class="col-span-2 sm:col-span-1 bg-amber-50 border-2 border-amber-300 p-2.5 sm:p-3 rounded-xl">
+                    <div class="text-[10px] sm:text-[11px] font-black uppercase text-amber-900">Remaining Length</div>
+                    <div id="stat-rem" class="text-xl sm:text-2xl font-black font-heading text-amber-950 mt-0.5">2500 cm</div>
+                </div>
+            </div>
+            
+            <div id="roll-completed-msg" class="hidden bg-amber-100 border-2 border-amber-400 text-amber-950 p-3.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2">
+                <i data-lucide="info" class="w-5 h-5 text-amber-700 shrink-0"></i>
+                <span>You cut exactly 22 full pieces (2420 cm total). The remaining 80 cm is too short for another 110 cm piece!</span>
+            </div>
+        </section>
+
+        <!-- 3. STEP 2: QUESTION 1 -->
+        <section id="q1-section" class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-300 space-y-4">
+            <div>
+                <span class="bg-indigo-100 text-indigo-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider border border-indigo-200">Step 2</span>
+                <h3 class="text-lg font-bold font-heading text-slate-900 mt-1">Calculating Pieces per Roll</h3>
+            </div>
+
+            <!-- HIGH CONTRAST QUESTION 1 BOX -->
+            <div class="bg-slate-900 text-white rounded-xl p-5 space-y-4 shadow-md">
+                <div class="flex items-start gap-3">
+                    <span class="bg-pink-500 text-white font-black text-sm px-2.5 py-0.5 rounded-lg shrink-0 mt-0.5">Q1</span>
+                    <p class="text-base sm:text-lg font-bold text-slate-50 leading-snug">
+                        How many pieces of ribbon (110 cm) can Jess get from 1 roll of 2500 cm?
+                    </p>
+                </div>
+
+                <div class="space-y-2.5 pt-1" id="q1-options">
+                    <button onclick="checkQ1('A', false, this)" class="q1-btn w-full text-left p-4 rounded-xl border-2 border-slate-700 bg-slate-800 hover:bg-slate-700 hover:border-pink-400 transition text-sm sm:text-base font-bold text-slate-100 flex items-center justify-between">
+                        <span>A) 2500 cm × 110 cm = 275000 pieces</span>
+                        <i data-lucide="circle" class="w-5 h-5 text-slate-400 shrink-0"></i>
+                    </button>
+                    <button onclick="checkQ1('B', true, this)" class="q1-btn w-full text-left p-4 rounded-xl border-2 border-slate-700 bg-slate-800 hover:bg-slate-700 hover:border-pink-400 transition text-sm sm:text-base font-bold text-slate-100 flex items-center justify-between">
+                        <span>B) 2500 cm ÷ 110 cm = 22 remainder 80 cm (22 full pieces)</span>
+                        <i data-lucide="circle" class="w-5 h-5 text-slate-400 shrink-0"></i>
+                    </button>
+                </div>
+
+                <div id="q1-feedback" class="p-3.5 rounded-xl text-xs sm:text-sm font-bold hidden"></div>
+            </div>
+        </section>
+
+        <!-- 4. STEP 3: QUESTION 2 & CRITICAL LESSON -->
+        <section id="step-3-section" class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-300 space-y-5 hidden animate-pop">
+            <div>
+                <span class="bg-rose-100 text-rose-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider border border-rose-200">Step 3</span>
+                <h3 class="text-lg font-bold font-heading text-slate-900 mt-1">The Leftover Strip & Critical Lesson</h3>
+            </div>
+
+            <!-- QUESTION 2 PROMPT -->
+            <div class="bg-slate-900 text-white rounded-xl p-5 space-y-4 shadow-md">
+                <div class="flex items-start gap-3">
+                    <span class="bg-rose-500 text-white font-black text-sm px-2.5 py-0.5 rounded-lg shrink-0 mt-0.5">Q2</span>
+                    <p class="text-base sm:text-lg font-bold text-slate-50 leading-snug">
+                        What should Jess do with the remaining 80 cm strip?
+                    </p>
+                </div>
+
+                <div class="space-y-2.5 pt-1" id="q2-options">
+                    <button onclick="checkQ2('A', true, this)" class="q2-btn w-full text-left p-4 rounded-xl border-2 border-slate-700 bg-slate-800 hover:bg-slate-700 hover:border-rose-400 transition text-sm sm:text-base font-bold text-slate-100">
+                        A) Set it aside or discard it, because each piece of ribbon must be 110 cm long in one whole continuous strip.
+                    </button>
+                    <button onclick="checkQ2('B', false, this)" class="q2-btn w-full text-left p-4 rounded-xl border-2 border-slate-700 bg-slate-800 hover:bg-slate-700 hover:border-rose-400 transition text-sm sm:text-base font-bold text-slate-100">
+                        B) Tape or glue it with another 80 cm strip from another roll to make a 110 cm piece.
+                    </button>
+                </div>
+
+                <div id="q2-feedback" class="p-3.5 rounded-xl text-xs sm:text-sm font-bold hidden"></div>
+            </div>
+
+            <!-- HIGHLY READABLE CRITICAL LESSON HIGHLIGHT BOX -->
+            <div id="insight-box" class="hidden animate-pop space-y-4">
+                <div class="bg-amber-50 border-4 border-amber-400 rounded-2xl p-5 sm:p-6 space-y-4 text-slate-950 shadow-md">
+                    <div class="flex items-center gap-2 text-amber-950 font-extrabold text-base sm:text-lg font-heading">
+                        <i data-lucide="alert-triangle" class="w-6 h-6 text-amber-600 shrink-0"></i>
+                        <span>CRITICAL LESSON: Why Total-Length Division Fails!</span>
+                    </div>
+
+                    <div class="space-y-3 text-sm sm:text-base leading-relaxed text-slate-900 font-semibold">
+                        <div class="bg-rose-100 border-2 border-rose-300 p-3.5 rounded-xl text-rose-950 font-bold space-y-1">
+                            <p class="text-rose-950 font-black">
+                                🚫 Why dividing total length (200 × 110 cm ÷ 2500 cm) is WRONG:
+                            </p>
+                            <p class="text-xs sm:text-sm font-bold text-rose-900 leading-snug">
+                                Total length division assumes you can join or glue the 80 cm offcuts from each roll together. In reality, offcut ribbons cannot be glued and are wasted!
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-900 text-slate-100 p-4 rounded-xl border border-slate-700 space-y-2">
+                            <p class="text-amber-400 font-black text-sm sm:text-base">
+                                ❌ Why 9 rolls is WRONG:
+                            </p>
+                            <p class="text-sm font-bold text-slate-100">
+                                9 rolls only give <span class="text-pink-400 font-black">9 × 22 = 198 pieces</span>. Jess would be <strong>2 ribbons short!</strong> Therefore, Jess needs <strong>10 rolls</strong>.
+                            </p>
+                            <p class="text-emerald-400 font-black text-sm sm:text-base pt-2 border-t border-slate-800">
+                                ✅ Correct Method:
+                            </p>
+                            <p class="text-sm text-slate-200">
+                                200 ÷ 22 = 9 remainder 2 &nbsp;➔&nbsp; <span class="bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded">9 + 1 = 10 rolls</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. STEP 4: FINDING TOTAL ROLLS NEEDED -->
+        <section id="step-4-section" class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-300 space-y-5 hidden animate-pop">
+            <div>
+                <span class="bg-emerald-100 text-emerald-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-200">Step 4</span>
+                <h3 class="text-lg font-bold font-heading text-slate-900 mt-1">Finding Total Rolls Needed</h3>
+            </div>
+
+            <div class="bg-indigo-950 text-white rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl border border-indigo-900">
+                <h4 class="font-bold font-heading text-yellow-300 text-lg flex items-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+                    Complete Step-by-Step Solution Key
+                </h4>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                    <div class="bg-white/10 p-4 rounded-xl border border-white/10 space-y-1">
+                        <span class="text-slate-300 text-xs font-bold uppercase tracking-wider block">1. Convert units to cm</span>
+                        <span class="font-bold text-white text-base">25 m = 2500 cm</span>
+                    </div>
+                    <div class="bg-white/10 p-4 rounded-xl border border-white/10 space-y-1">
+                        <span class="text-slate-300 text-xs font-bold uppercase tracking-wider block">2. Usable pieces per roll</span>
+                        <span class="font-bold text-white text-base">2500 ÷ 110 = 22 remainder 80 cm</span>
+                        <span class="text-emerald-300 text-xs block font-bold">➔ 22 full pieces per roll</span>
+                    </div>
+                    <div class="bg-white/10 p-4 rounded-xl border border-white/10 space-y-1">
+                        <span class="text-slate-300 text-xs font-bold uppercase tracking-wider block">3. Divide required pieces by 22</span>
+                        <span class="font-bold text-white text-base">200 ÷ 22 = 9 remainder 2</span>
+                        <span class="text-amber-300 text-xs block font-bold">➔ 9 rolls give 198 pieces (need 2 more)</span>
+                    </div>
+                    <div class="bg-emerald-500/20 border-2 border-emerald-400/60 p-4 rounded-xl space-y-1">
+                        <span class="text-emerald-300 text-xs font-bold uppercase tracking-wider block">4. Round up for the remainder</span>
+                        <span class="font-black text-emerald-300 text-2xl font-heading">9 + 1 = 10 rolls</span>
+                        <span class="text-emerald-200 text-xs block font-bold">Least number of rolls needed = 10</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 text-xs py-4 px-4 text-center font-medium">
+        Interactive Primary Math Visualizer • Single-Roll Ribbon Cutting & Division
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        const totalLength = 2500;
+        const pieceLength = 110;
+        const maxPieces = 22;
+        let cuts = 0;
+
+        window.onload = function() {
+            lucide.createIcons();
+            renderStrip();
+        };
+
+        function renderStrip() {
+            const container = document.getElementById('ribbon-strip-container');
+            container.innerHTML = '';
+
+            const used = cuts * pieceLength;
+            const remaining = totalLength - used;
+
+            // Render cut slim blocks in a single horizontal row without text inside
+            for (let i = 0; i < cuts; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'bg-emerald-500 hover:bg-emerald-400 border-r border-emerald-700 animate-pop shrink cursor-pointer transition-all';
+                piece.style.flex = `${pieceLength}`;
+                piece.style.height = '100%';
+                piece.title = `Piece #${i + 1}: 110 cm`;
+                container.appendChild(piece);
+            }
+
+            // Render remaining uncut / waste segment in the same line
+            if (cuts < maxPieces) {
+                const uncut = document.createElement('div');
+                uncut.className = 'bg-indigo-200 text-indigo-950 text-[10px] sm:text-xs font-black flex items-center justify-center transition-all h-full shrink min-w-0';
+                uncut.style.flex = `${remaining}`;
+                uncut.innerHTML = `<span class="truncate px-1">${remaining} cm</span>`;
+                container.appendChild(uncut);
+                document.getElementById('roll-completed-msg').classList.add('hidden');
+            } else {
+                // Render exact 80 cm offcut segment (80 out of 2500 total units)
+                const waste = document.createElement('div');
+                waste.className = 'offcut-stripe text-rose-950 text-[9px] font-black flex items-center justify-center h-full shrink border-l border-rose-400 min-w-0';
+                waste.style.flex = '80';
+                waste.title = '80 cm Offcut (Waste)';
+                waste.innerHTML = `<span class="truncate px-0.5">80 cm</span>`;
+                container.appendChild(waste);
+                document.getElementById('roll-completed-msg').classList.remove('hidden');
+            }
+
+            // Live updates without commas
+            document.getElementById('stat-pieces').textContent = `${cuts} / ${maxPieces}`;
+            document.getElementById('stat-used').textContent = `${used} cm`;
+            document.getElementById('stat-rem').textContent = `${remaining} cm`;
+            document.getElementById('remaining-length-label').textContent = `Uncut Roll: ${remaining} cm`;
+
+            // Disable button if max cut reached
+            const cutBtn = document.getElementById('btn-cut-one');
+            if (cuts >= maxPieces) {
+                cutBtn.disabled = true;
+                cutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                cutBtn.disabled = false;
+                cutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function cutOnePiece() {
+            if (cuts < maxPieces) {
+                cuts++;
+                renderStrip();
+            }
+        }
+
+        function resetRoll() {
+            cuts = 0;
+            renderStrip();
+        }
+
+        function checkQ1(option, isCorrect, btnElement) {
+            const btns = document.querySelectorAll('.q1-btn');
+            btns.forEach(b => b.classList.add('pointer-events-none', 'opacity-60'));
+
+            const feedback = document.getElementById('q1-feedback');
+            feedback.classList.remove('hidden');
+
+            if (isCorrect) {
+                btnElement.classList.remove('opacity-60', 'bg-slate-800', 'border-slate-700');
+                btnElement.classList.add('bg-emerald-950', 'border-emerald-500', 'text-emerald-200');
+                feedback.className = "p-3.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-950 border border-emerald-500 text-emerald-200 flex items-center gap-2 mt-2";
+                feedback.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-emerald-400 shrink-0"></i> Correct! 2500 cm ÷ 110 cm = 22 pieces with 80 cm remaining.`;
+            } else {
+                btnElement.classList.remove('opacity-60', 'bg-slate-800', 'border-slate-700');
+                btnElement.classList.add('bg-rose-950', 'border-rose-500', 'text-rose-200');
+                feedback.className = "p-3.5 rounded-xl text-xs sm:text-sm font-bold bg-rose-950 border border-rose-500 text-rose-200 flex items-center gap-2 mt-2";
+                feedback.innerHTML = `<i data-lucide="x-circle" class="w-5 h-5 text-rose-400 shrink-0"></i> Incorrect. Multiplication calculates total area/length, not the number of pieces.`;
+            }
+
+            // Auto-advance visualization to 22 pieces so students see the 80 cm remainder visually
+            cuts = maxPieces;
+            renderStrip();
+
+            // Reveal Step 3
+            document.getElementById('step-3-section').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function checkQ2(option, isCorrect, btnElement) {
+            const btns = document.querySelectorAll('.q2-btn');
+            btns.forEach(b => b.classList.add('pointer-events-none', 'opacity-60'));
+
+            const feedback = document.getElementById('q2-feedback');
+            feedback.classList.remove('hidden');
+
+            if (isCorrect) {
+                btnElement.classList.remove('opacity-60', 'bg-slate-800', 'border-slate-700');
+                btnElement.classList.add('bg-emerald-950', 'border-emerald-500', 'text-emerald-200');
+                feedback.className = "p-3.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-950 border border-emerald-500 text-emerald-200 flex items-center gap-2 mt-2";
+                feedback.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-emerald-400 shrink-0"></i> Correct! Leftover ribbon offcuts cannot be taped or glued together for party decorations!`;
+            } else {
+                btnElement.classList.remove('opacity-60', 'bg-slate-800', 'border-slate-700');
+                btnElement.classList.add('bg-rose-950', 'border-rose-500', 'text-rose-200');
+                feedback.className = "p-3.5 rounded-xl text-xs sm:text-sm font-bold bg-rose-950 border border-rose-500 text-rose-200 flex items-center gap-2 mt-2";
+                feedback.innerHTML = `<i data-lucide="x-circle" class="w-5 h-5 text-rose-400 shrink-0"></i> Incorrect. Ribbon offcuts cannot be joined together into one continuous strip.`;
+            }
+
+            // Reveal Critical Insight Box & Step 4
+            document.getElementById('insight-box').classList.remove('hidden');
+            document.getElementById('step-4-section').classList.remove('hidden');
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
